@@ -1,0 +1,6 @@
+curl --location --request POST 'https://127.0.0.1:8443/realms/master/protocol/openid-connect/token' \
+--header 'Content-Type: application/x-www-form-urlencoded' \
+--data-urlencode 'client_id=admin-cli' \
+--data-urlencode 'username=admin' \
+--data-urlencode 'password=admin' \
+--data-urlencode 'grant_type=password' -k

@@ -1,0 +1,94 @@
+---
+- name: Manage Docker Containers
+  hosts: localhost
+  vars:
+    compose_state: present
+    container_state: absent
+    keycloak_state: present
+
+  tasks:
+
+    - name: pull an image
+      docker_image:
+        name: nginx:alpine
+        source: pull
+
+    - name: Container present
+      docker_container:
+        name: mycontainer
+        state: "{{ container_state }}"
+        image: nginx:alpine
+        ports:
+          - "8080:80"
+#      register: output
+#    - debug:
+#        var: output
+
+    - name: Create and start services
+      docker_compose:
+        project_src: ~/codesenju/keycloak_grafana
+        state: "{{ compose_state }}"
+#      register: output  
+#    - debug:
+#        var: output
+
+    - name: Get infos on container
+      docker_container_info:
+        name: keycloak
+      register: keycloak_result
+
+    - name: Does container exist?
+      debug:
+        msg: "The container {{ 'exists' if keycloak_result.exists else 'does not exist' }}"
+
+    - name: Print information about container
+      debug:
+        var: keycloak_result.container
+      when: keycloak_result.exists
+
+    - name: Sleep for 20 seconds and continue with play
+      wait_for:
+        timeout: 20
+      delegate_to: localhost
+      when: keycloak_result.exists
+
+    - name: Create or update Keycloak realm (minimal example)
+      community.general.keycloak_realm:
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        id: demo
+        realm: demo
+        state: "{{ keycloak_state }}"
+        enabled: true
+        validate_certs: no
+#      register: output
+#    - debug:
+#        var: output
+      when: keycloak_result.exists
+
+    -  name: Create or update Keycloak client (minimal example), authentication with credentials
+       keycloak_client:
+          auth_keycloak_url: https://localhost:8443
+          auth_realm: master
+          auth_username: admin
+          auth_password: admin
+          realm: demo
+          client_id: grafana
+          state: "{{ keycloak_state }}"
+          description: Grafana Client
+          root_url: http://localhost:4000
+          admin_url: http://localhost:4000
+          enabled: True
+          client_authenticator_type: client-secret
+          secret: thisisasecretforgrafanaclient
+          redirect_uris:
+            - http://localhost:4000/*
+          validate_certs: no
+       delegate_to: localhost
+#       register: output
+#    - debug:
+#        var: output
+       when: keycloak_result.exists
