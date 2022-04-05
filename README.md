@@ -2,10 +2,18 @@
 ```ansible-config init --disabled > ansible.cfg```
 
 ### Setup passwordless ssh on remote servers.
+
 ### Create virtualenvs on remote servers.
-
+```mkdir -p ~/.virtualenvs``` \
+```cd ~/.virtualenvs``` \
+```virtualenv dev-env``` \
+```source dev-env/bin/activate``` \
+```pip3 -V``` \
+```pip3 list``` \
+```pip3 install paramiko``` \
+```pip3 list```
 ### Install requirements.txt on remote servers.
-
+```pip3 install -r requirements.txt```
 ### Accessing ansible documentation.
 - List all modules \
 ```ansible-doc -l ```

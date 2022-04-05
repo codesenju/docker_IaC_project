@@ -3,26 +3,12 @@
   hosts: localhost
   vars:
     compose_state: present
-    container_state: absent
     keycloak_state: present
-
   tasks:
-
-    - name: pull an image
-      docker_image:
-        name: nginx:alpine
-        source: pull
-
-    - name: Container present
-      docker_container:
-        name: mycontainer
-        state: "{{ container_state }}"
-        image: nginx:alpine
-        ports:
-          - "8080:80"
-#      register: output
-#    - debug:
-#        var: output
+    
+    - name: Create a network
+      docker_network:
+        name: keycloak_net
 
     - name: Create and start services
       docker_compose:
@@ -51,6 +37,7 @@
         timeout: 20
       delegate_to: localhost
       when: keycloak_result.exists
+      run_once: true
 
     - name: Create or update Keycloak realm (minimal example)
       community.general.keycloak_realm:
@@ -67,6 +54,7 @@
 #      register: output
 #    - debug:
 #        var: output
+      delegate_to: localhost
       when: keycloak_result.exists
 
     -  name: Create or update Keycloak client (minimal example), authentication with credentials
