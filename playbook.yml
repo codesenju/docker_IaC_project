@@ -159,10 +159,10 @@
       delegate_to: localhost
 
     - name: Map a client role to a group | grafana_admin client role = grafana_admins group
-      community.general.keycloak_client_rolemappings:
+      community.general.keycloak_client_rolemapping:
         realm: demo
         auth_client_id: admin-cli
-        auth_keycloak_url: hhttps://localhost:8443
+        auth_keycloak_url: https://localhost:8443
         auth_realm: master
         auth_username: admin
         auth_password: admin
@@ -172,14 +172,13 @@
         group_name: grafana_admins
         roles:
           - name: grafana_admin
-            id: grafana_admin
       delegate_to: localhost
 
     - name: Map a client role to a group | grafana_editor client role = grafana_editors group
-      community.general.keycloak_client_rolemappings:
+      community.general.keycloak_client_rolemapping:
         realm: demo
         auth_client_id: admin-cli
-        auth_keycloak_url: hhttps://localhost:8443
+        auth_keycloak_url: https://localhost:8443
         auth_realm: master
         auth_username: admin
         auth_password: admin
@@ -189,5 +188,4 @@
         group_name: grafana_editors
         roles:
           - name: grafana_editor
-            id: grafana_editor
       delegate_to: localhost
