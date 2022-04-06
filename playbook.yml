@@ -5,6 +5,8 @@
   vars:
     compose_state: present
     keycloak_state: present
+    required: true
+    keycloak_compose_file_path: ~/codesenju/keycloak_grafana
   tasks:
     
 #    - name: Show facts
@@ -17,13 +19,14 @@
 
     - name: Create and start services
       docker_compose:
-        project_src: ~/codesenju/keycloak_grafana
+        project_src: '{{ keycloak_compose_file_path }}'
         state: "{{ compose_state }}"
       notify:
         -   Wait for keycloak server
 #      register: output  
 #    - debug:
 #        var: output
+      when: not required
 
     - name: Get info on container
       docker_container_info:
