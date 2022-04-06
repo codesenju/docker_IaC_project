@@ -32,14 +32,13 @@
         var: keycloak_result.container
       when: keycloak_result.exists
 
-    - name: Sleep for 20 seconds and continue with play
-      wait_for:
-        timeout: 20
-      delegate_to: localhost
-      when: keycloak_result.exists
-      run_once: true
+#    - name: Sleep for 20 seconds and continue with play
+#      wait_for:
+#        timeout: 1
+#      delegate_to: localhost
+#      when: keycloak_result.exists
 
-    - name: Create or update Keycloak realm (minimal example)
+    - name: Create or update Keycloak realm | demo
       community.general.keycloak_realm:
         auth_client_id: admin-cli
         auth_keycloak_url: https://localhost:8443
@@ -57,7 +56,7 @@
       delegate_to: localhost
       when: keycloak_result.exists
 
-    -  name: Create or update Keycloak client (minimal example), authentication with credentials
+    -  name: Create Keycloak client | grafana
        keycloak_client:
           auth_keycloak_url: https://localhost:8443
           auth_realm: master
@@ -80,3 +79,115 @@
 #    - debug:
 #        var: output
        when: keycloak_result.exists
+
+    -  name: Create Keycloak client | registry
+       keycloak_client:
+          auth_keycloak_url: https://localhost:8443
+          auth_realm: master
+          auth_username: admin
+          auth_password: admin
+          realm: demo
+          client_id: registry
+          state: "{{ keycloak_state }}"
+          description: Registry Client
+          root_url: http://localhost:5043
+          admin_url: http://localhost:5043
+          enabled: True
+          client_authenticator_type: client-secret
+          secret: thisisasecretforregistryclient
+          redirect_uris:
+            - http://localhost:5043/*
+          validate_certs: no
+       delegate_to: localhost
+#       register: output
+#    - debug:
+#        var: output
+       when: keycloak_result.exists
+
+    - name: Create a Keycloak client role | grafana_admin
+      community.general.keycloak_role:
+        name: grafana_admin
+        realm: demo
+        client_id: grafana
+        state: present
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+      delegate_to: localhost
+
+    - name: Create a Keycloak client role | grafana_editor
+      community.general.keycloak_role:
+        name: grafana_editor
+        realm: demo
+        client_id: grafana
+        state: present
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+      delegate_to: localhost
+  
+    - name: Create a Keycloak group | grafana_admins
+      keycloak_group:
+        name: grafana_admins
+        realm: demo
+        state: present
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+      delegate_to: localhost
+
+    - name: Create a Keycloak group | grafana_editors
+      keycloak_group:
+        name: grafana_editors
+        realm: demo
+        state: present
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+      delegate_to: localhost
+
+    - name: Map a client role to a group | grafana_admin client role = grafana_admins group
+      community.general.keycloak_client_rolemappings:
+        realm: demo
+        auth_client_id: admin-cli
+        auth_keycloak_url: hhttps://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+        state: present
+        client_id: grafana
+        group_name: grafana_admins
+        roles:
+          - name: grafana_admin
+            id: grafana_admin
+      delegate_to: localhost
+
+    - name: Map a client role to a group | grafana_editor client role = grafana_editors group
+      community.general.keycloak_client_rolemappings:
+        realm: demo
+        auth_client_id: admin-cli
+        auth_keycloak_url: hhttps://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        validate_certs: no
+        state: present
+        client_id: grafana
+        group_name: grafana_editors
+        roles:
+          - name: grafana_editor
+            id: grafana_editor
+      delegate_to: localhost
