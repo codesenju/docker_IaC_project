@@ -15,7 +15,6 @@
   #    - debug:
   #        var: output
   delegate_to: localhost
-  when: keycloak_result.exists
 
 - name: Create Keycloak client | grafana
   keycloak_client:
@@ -39,7 +38,6 @@
   #       register: output
   #    - debug:
   #        var: output
-  when: keycloak_result.exists
 
 - name: Create Keycloak client | registry
   keycloak_client:
@@ -63,7 +61,6 @@
   #       register: output
   #    - debug:
   #        var: output
-  when: keycloak_result.exists
 
 - name: Create a Keycloak client role | grafana_admin
   community.general.keycloak_role:
@@ -77,7 +74,6 @@
     auth_username: admin
     auth_password: admin
     validate_certs: no
-  delegate_to: localhost
 
 - name: Create a Keycloak client role | grafana_editor
   community.general.keycloak_role:
@@ -91,7 +87,6 @@
     auth_username: admin
     auth_password: admin
     validate_certs: no
-  delegate_to: localhost
 
 - name: Create a Keycloak group | grafana_admins
   keycloak_group:
@@ -104,7 +99,6 @@
     auth_username: admin
     auth_password: admin
     validate_certs: no
-  delegate_to: localhost
 
 - name: Create a Keycloak group | grafana_editors
   keycloak_group:
@@ -117,7 +111,6 @@
     auth_username: admin
     auth_password: admin
     validate_certs: no
-  delegate_to: localhost
 
 - name: Map a client role to a group | grafana_admin client role = grafana_admins group
   community.general.keycloak_client_rolemapping:
@@ -133,7 +126,6 @@
     group_name: grafana_admins
     roles:
       - name: grafana_admin
-  delegate_to: localhost
 
 - name: Map a client role to a group | grafana_editor client role = grafana_editors group
   community.general.keycloak_client_rolemapping:
@@ -149,4 +141,3 @@
     group_name: grafana_editors
     roles:
       - name: grafana_editor
-  delegate_to: localhost
