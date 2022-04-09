@@ -1,0 +1,63 @@
+- name: Create Keycloak client | registry
+  keycloak_client:
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: admin
+    auth_password: admin
+    realm: demo
+    client_id: registry
+    state: "{{ keycloak_config_state }}"
+    description: Registry Client
+    root_url: http://localhost:5043
+    admin_url: http://localhost:5043
+    base_url: "/"
+    enabled: True
+    client_authenticator_type: client-secret
+    secret: thisisasecretforregistryclient
+    redirect_uris:
+      - http://localhost:5043/*
+    validate_certs: no
+  delegate_to: localhost
+  #       register: output
+  #    - debug:
+  #        var: output
+
+- name: Create a Keycloak client role | grafana_admin
+  community.general.keycloak_role:
+    name: admin # Client role name
+    realm: demo
+    client_id: registry
+    state: "{{ keycloak_config_state }}"
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: admin
+    auth_password: admin
+    validate_certs: no
+
+- name: Create a Keycloak group | registry_admins
+  keycloak_group:
+    name: registry_admins
+    realm: demo
+    state: "{{ keycloak_config_state }}"
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: admin
+    auth_password: admin
+    validate_certs: no
+
+- name: Map a client role to a group | admin registry lient role = registry_admins group
+  community.general.keycloak_client_rolemapping:
+    realm: demo
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: admin
+    auth_password: admin
+    validate_certs: no
+    state: "{{ keycloak_config_state }}"
+    client_id: registry
+    group_name: registry_admins
+    roles:
+      - name: admin

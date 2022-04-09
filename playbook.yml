@@ -4,7 +4,7 @@
   gather_facts:  false
   vars:
     compose_state: present
-    keycloak_state: present
+    keycloak_config_state: present
     required: true
     keycloak_compose_file_path: ~/codesenju/keycloak_grafana
   tasks:
@@ -21,12 +21,16 @@
       docker_compose:
         project_src: '{{ keycloak_compose_file_path }}'
         state: "{{ compose_state }}"
+        services: 
+          - keycloak
+          - grafana-proxy
       notify:
         -   Wait for keycloak server
+        -   docker-compose up
 #      register: output  
 #    - debug:
 #        var: output
-      when: not required
+#      when: not required
 
     - name: Get info on container
       docker_container_info:
@@ -45,9 +49,34 @@
     - name: Force all notified handlers to run at this point, not waiting for normal sync points
       meta: flush_handlers
 
-    - name: Configure Keycloak Server
-      import_tasks: keycloak.yml
+    - name: Create or update Keycloak realm | demo
+      community.general.keycloak_realm:
+        auth_client_id: admin-cli
+        auth_keycloak_url: https://localhost:8443
+        auth_realm: master
+        auth_username: admin
+        auth_password: admin
+        id: demo
+        realm: demo
+        state: present
+        enabled: true
+        validate_certs: no
+      #      register: output
+      #    - debug:
+      #        var: output
       when: keycloak_result.exists
+
+    - name: Configure keycloak grafana client
+      import_tasks: keycloak_grafana.yml
+      when: keycloak_result.exists
+
+    - name: Configure keycloak registry client
+      import_tasks: keycloak_registry.yml
+      when: keycloak_result.exists
+
+    - name: Configure Grafana
+      import_tasks: grafana.yml
+#      when: keycloak_result.exists
 
   handlers:
     - name: Wait for keycloak server
@@ -55,4 +84,10 @@
         timeout: 20
       delegate_to: localhost
       when: keycloak_result.exists
-      
+    - name: docker-compose up
+      docker_compose:
+        project_src: '{{ keycloak_compose_file_path }}'
+        state: "{{ compose_state }}"
+        services: 
+          - keycloak
+          - grafana-proxy
