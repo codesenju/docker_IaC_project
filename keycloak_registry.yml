@@ -1,9 +1,9 @@
-- name: Create Keycloak client | registry
+- name: Create Keycloak  client | registry
   keycloak_client:
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     realm: demo
     client_id: registry
     state: "{{ keycloak_config_state }}"
@@ -17,22 +17,18 @@
     redirect_uris:
       - http://localhost:5043/*
     validate_certs: no
-  delegate_to: localhost
-  #       register: output
-  #    - debug:
-  #        var: output
 
-- name: Create a Keycloak client role | grafana_admin
+- name: Create a Keycloak registry client role | admin
   community.general.keycloak_role:
-    name: admin # Client role name
+    name: admin
     realm: demo
     client_id: registry
     state: "{{ keycloak_config_state }}"
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
 - name: Create a Keycloak group | registry_admins
@@ -43,18 +39,18 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
-- name: Map a client role to a group | admin registry lient role = registry_admins group
+- name: Map a client role to a group | admin registry client role = registry_admins group
   community.general.keycloak_client_rolemapping:
     realm: demo
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
     state: "{{ keycloak_config_state }}"
     client_id: registry

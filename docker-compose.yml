@@ -1,0 +1,195 @@
+---
+version: "3"
+volumes:
+  db_data:
+  es_data:
+networks:
+  keycloak_net:
+    external: true  
+services:
+# Grafana HA
+  grafana-proxy:
+    image: nginx:alpine
+    container_name: grafana-proxy
+    ports:
+      - 4000:80
+    networks:
+      - keycloak_net
+    volumes:
+      - ./conf/nginx/:/etc/nginx/conf.d/
+    depends_on:
+      - grafana1
+      - grafana2
+      - fluent-bit
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: monitoring
+  grafana1:
+    container_name: grafana1
+    image: grafana/grafana:7.4.1
+    networks:
+      - keycloak_net
+    environment:
+      GF_SECURITY_ADMIN_USER: ${G_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${G_PASSWORD}
+      GF_DATABSE_HOST: ${POSTGRESQL_USER}
+      GF_DATABASE_NAME: ${POSTGRESQL_DB}
+      GF_DATABASE_USER: ${POSTGRESQL_USER}
+      GF_DATABASE_PASSWORD: ${POSTGRESQL_PASS}
+    expose:
+      - 4000
+    volumes:
+      - ./plugins:/var/lib/grafana/plugins
+      - ./conf/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      postgres:
+         condition: service_healthy
+      fluent-bit:
+         condition: service_started
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: monitoring
+  grafana2:
+    container_name: grafana2
+    image: grafana/grafana:7.4.1
+    networks:
+      - keycloak_net
+    environment:
+      GF_SECURITY_ADMIN_USER: ${G_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${G_PASSWORD}
+      GF_DATABSE_HOST: ${POSTGRESQL_USER}
+      GF_DATABASE_NAME: ${POSTGRESQL_DB}
+      GF_DATABASE_USER: ${POSTGRESQL_USER}
+      GF_DATABASE_PASSWORD: ${POSTGRESQL_PASS}
+
+    expose:
+      - 4000
+    volumes:
+      - ./plugins:/var/lib/grafana/plugins
+      - ./conf/grafana.ini:/etc/grafana/grafana.ini
+    depends_on:
+      postgres:
+         condition: service_healthy
+      fluent-bit:
+         condition: service_started
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: monitoring
+# DevSecOps - Keycloak
+  keycloak:
+    image: quay.io/keycloak/keycloak:17.0.1
+    container_name: keycloak
+    hostname: ${HOST}
+    environment:
+      DB_VENDOR: postgres
+      DB_ADDR: postgres
+      DB_DATABASE: ${POSTGRESQL_DB}
+      DB_USER: ${POSTGRESQL_USER}
+      DB_PASSWORD: ${POSTGRESQL_PASS}
+      KEYCLOAK_ADMIN: ${K_USER}
+      KEYCLOAK_ADMIN_PASSWORD: ${K_PASSWORD}
+      KC_HOSTNAME_STRICT_HTTPS: 'false'
+      KC_DB: postgres
+      KC_DB_URL_DATABASE: ${POSTGRESQL_DB}
+      KC_DB_URL_HOST: ${POSTGRESQL_HOST}
+      KC_DB_USERNAME:  ${POSTGRESQL_USER}
+      KC_DB_PASSWORD:  ${POSTGRESQL_PASS}
+    command: 
+      - 'start'
+      - '--auto-build'
+      - '--hostname=${HOST}'
+      - '--https-certificate-file=/certs/cert.pem'
+      - '--https-certificate-key-file=/certs/key.pem' 
+      - '--spi-theme-static-max-age=-1'
+      - '--spi-theme-cache-themes=false'
+      - '--spi-theme-cache-templates=false'
+    volumes: 
+      - ./certs:/certs
+      - ./keycloak/themes/:/opt/keycloak/themes
+    ports:
+      - "8443:8443"
+    restart: unless-stopped
+    networks:
+      - keycloak_net
+    depends_on:
+      postgres:
+         condition: service_healthy
+      fluent-bit:
+         condition: service_started
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: DevSecOps
+# Log Aggregation - fluent-bit & elasticsearch
+  fluent-bit:
+    image: fluent/fluent-bit:1.9.0
+    container_name: fluent-bit
+    volumes:
+      - ./conf/fluent-bit.conf:/fluent-bit/etc/fluent-bit.conf
+    ports:
+      - 24224:24224
+      - 2020:2020
+    networks:
+      - keycloak_net
+    depends_on:
+      elasticsearch:
+        condition: service_started
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+    container_name: elasticsearch
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 1g
+    networks:
+       - keycloak_net
+#    depends_on:
+#      fluent-bit:
+#        condition: service_completed_successfully
+#    logging:
+#      driver: "fluentd"
+#      options:
+#        fluentd-address: localhost:24224
+#        tag: monitoring
+
+# Database
+  postgres:
+    container_name: postgres
+    image: postgres:12-alpine
+    restart: unless-stopped
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
+      POSTGRES_USER: ${POSTGRESQL_USER}
+#      POSTGRES_DB: ${POSTGRESQL_DB}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - keycloak_net
+    healthcheck:
+      test: pg_isready -U keycloak
+    depends_on:
+      fluent-bit:
+        condition: service_started
+    ports:
+      - 5432:5432
+    logging:
+      driver: "fluentd"
+      options:
+        fluentd-address: localhost:24224
+        tag: database

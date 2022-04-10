@@ -1,0 +1,4 @@
+compose_state: present
+keycloak_config_state: present
+required: true
+keycloak_compose_file_path:  /Users/jazziro/codesenju/NoOPS/ansible

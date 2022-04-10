@@ -2,8 +2,8 @@
   keycloak_client:
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username:  "{{ k_user }}"
+    auth_password:  "{{ k_password }}"
     realm: demo
     client_id: grafana
     state: "{{ keycloak_config_state }}"
@@ -31,8 +31,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
 - name: Create a Keycloak client role | grafana_editor
@@ -44,8 +44,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
 - name: Create a Keycloak group | grafana_admins
@@ -56,8 +56,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
 - name: Create a Keycloak group | grafana_editors
@@ -68,8 +68,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
 
 - name: Map a client role to a group | grafana_admin client role = grafana_admins group
@@ -78,8 +78,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
     state: "{{ keycloak_config_state }}"
     client_id: grafana
@@ -93,8 +93,8 @@
     auth_client_id: admin-cli
     auth_keycloak_url: https://localhost:8443
     auth_realm: master
-    auth_username: admin
-    auth_password: admin
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
     validate_certs: no
     state: "{{ keycloak_config_state }}"
     client_id: grafana

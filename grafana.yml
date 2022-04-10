@@ -1,0 +1,79 @@
+---
+# How to use grafana API's to create a datasource
+# This step is skipped
+- name:  Create elasticsearch datasource using grafana api
+  uri:
+    url: http://localhost:4000/api/datasources
+    user: "{{ grafana_user }}"
+    password: "{{ grafana_password}}"
+    force_basic_auth: yes
+    method: POST
+    body_format: json
+    body: |
+      {
+        "orgId": 1,
+        "name": "elasticsearch",
+        "type": "elasticsearch",
+        "access": "proxy",
+        "url": "http://elasticsearch:9200",
+        "password": "",
+        "user": "",
+        "database": "container-logs*",
+        "basicAuth": false,
+        "basicAuthUser": "",
+        "basicAuthPassword": "",
+        "withCredentials": false,
+        "isDefault": false,
+        "jsonData": {},
+        "secureJsonFields": {},
+        "version": 7,
+        "readOnly": false,
+        "time_field": "@timestamp",
+        "time_interval": "1m",
+        "interval": "No Pattern",
+        "max_concurrent_shard_requests": 42,
+        "tls_skip_verify": "yes",
+        "jsonData": {
+         "esVersion": 70,
+         "logLevelField": "",
+         "logMessageField": "log",
+         "maxConcurrentShardRequests": 5,
+         "timeField": "@timestamp"
+          }
+      }
+  run_once: true
+  when: not required
+  tags:
+    - grafana
+
+- name: Create elasticsearch datasource
+  community.grafana.grafana_datasource:
+    name: "elasticsearch"
+    url: http://localhost:4000
+    grafana_user: "{{ grafana_user }}"
+    grafana_password: "{{ grafana_password }}"
+    ds_type: "elasticsearch"
+    ds_url: "http://elasticsearch:9200"
+    database: "container-logs*"
+    time_field: "@timestamp"
+    es_version: 70
+    max_concurrent_shard_requests: 5
+    tls_skip_verify: yes
+    additional_json_data: |
+     {
+         "logMessageField": "log"
+     }
+  tags:
+    - grafana
+
+- name: Import Grafana dashboard container_logs.json
+  grafana_dashboard:
+    grafana_url: http://localhost:4000
+    grafana_user: "{{ grafana_user }}"
+    grafana_password: "{{ grafana_password }}"
+    state: present
+    commit_message: Updated by ansible
+    overwrite: yes
+    path: grafana/dashboard/container_logs.json
+  tags:
+    - grafana
