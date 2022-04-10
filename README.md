@@ -1,5 +1,4 @@
 ## Prerequisites:
-- https://github.com/codesenju/keycloak_grafana
 
 ### To generate an example config file (a "disabled" one with all default settings, commented out):
 ```ansible-config init --disabled > ansible.cfg```
@@ -89,4 +88,3 @@ docker-compose ps
 ```
 https://localhost:8443/realms/demo/.well-known/openid-configuration
 ```
-
