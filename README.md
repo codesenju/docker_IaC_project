@@ -1,10 +1,9 @@
-## Prerequisites:
-
+# 1. Prerequisites:
+## - [ansible](https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html)
+## - [docker](https://docs.docker.com/get-docker/)
 ### To generate an example config file (a "disabled" one with all default settings, commented out):
 ```ansible-config init --disabled > ansible.cfg```
-
 ### Setup passwordless ssh on remote servers.
-
 ### Create virtualenvs on remote servers.
 ```mkdir -p ~/.virtualenvs``` \
 ```cd ~/.virtualenvs``` \
@@ -21,71 +20,55 @@
 ```ansible-doc -l ```
 - Display documentation for the ping module \
 ```ansible-doc ping```
-## Issues:
-- https://cri.dev/posts/2020-07-06-How-to-solve-Docker-docker-credential-desktop-not-installed-or-not-available-in-PATH/
-## References:
-- https://docs.ansible.com/ansible/2.9/modules/docker_compose_module.html#docker-compose-module
-- https://docs.ansible.com/ansible/latest/collections/community/general/keycloak_client_module.html
-
-# Setup
 ## Create SSL Certificate suing openssl
 ```shell
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
 ```
-## Create SSL Certificate using minica:
+## Create SSL Certificate using minica (Optional):
 ```bash
 cd certs
 minica --domains 'localhost'
 ```
-### Create network keycloak_net:
-```
-docker network create keycloak_net
-```
-### Spin up containers:
+# 2. Start Environment:
 ```bash
-docker-compose up -d keycloak
+ansible-playbook playook.yml
 ```
-### Go to [https//localhost:8443](https//localhost:8443)
-# Configure Keycloak
-- ## Create realm *demo*
-- ## Create user
-- ## Create client grafana:
+## 2.1 Go to [https//localhost:8443](https//localhost:8443)
+## *Only do steps [2.10](#2.10-Create-user) & [2.11](#2.11-Add-User-to-group)*
+Anisble will configure most of the setup (2.3 - 2.11)
+### Configure Keycloak
+- ## 2.3 Create realm *demo*
+- ## 2.4 Create client grafana:
 ![client](media/client.jpg)
-- ## Copy secret to grafana config file:
+- ## 2.5 Copy secret to grafana config file:
 ![secret](media/secret.jpg)
 ![grafana_config](media/grafana_config.jpg)
-
-- ## Create Roles:
+- ## 2.6 Create Roles:
 ![role_1](media/create_role_1-2.jpg)
 ![role_2](media/create_role_3-4.jpg)
 ![role_3](media/create_role_final.jpg)
-
-- ## Create group(s) & Group mappings:
+- ## 2.7 Create group(s) & Group mappings:
 ![mappings_1](media/group_mapping_1-2.jpg)
 ![mappings_2](media/group_mapping_3-4.jpg)
 ![group_created](media/group_created.jpg)
 ![mappings_3](media/group_mapping_5-7.jpg)
 ![mappings_3](media/group_mapping_updated.jpg)
-- ## repeat for grafana_editor:
-- ## Add User to group
-- ## Create Client mappings:
+- ## 2.8 repeat for grafana_editor:
+- ## 2.9 Create Client mappings:
 ![client_mappings](media/client_mapper.jpg)
-
-# Start grafana
-```
-docker-compose up -d
-```
-```
-docker-compose ps
-```
+- ## 2.10 Create user
+- ## 2.11 Add User to group
 ## Go to [https//localhost:8443](http//localhost:4000)
-
 # Video
 ![keycloak](media/keycloak.gif)
 # References
 - [Convert openssl .key file to .pem](https://gist.github.com/amolkhanorkar/10375087)
-- - https://github.com/Alfresco/alfresco-keycloak-theme
-## Check Realm Endpoints:
+- https://docs.ansible.com/ansible/2.9/modules/docker_compose_module.html#docker-compose-module
+- https://docs.ansible.com/ansible/latest/collections/community/general/keycloak_client_module.html
+- https://github.com/Alfresco/alfresco-keycloak-theme
+# Issues:
+- https://cri.dev/posts/2020-07-06-How-to-solve-Docker-docker-credential-desktop-not-installed-or-not-available-in-PATH/
+# Check Realm Endpoints:
 ```
 {{server}}/realms/{{realm}}/.well-known/openid-configuration
 ```
