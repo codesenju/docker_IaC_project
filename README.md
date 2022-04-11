@@ -34,7 +34,7 @@ minica --domains 'localhost'
 ansible-playbook playook.yml
 ```
 ## 2.1 Go to [https//localhost:8443](https//localhost:8443)
-## *Only do steps [2.10](#2.10-Create-user) & [2.11](#2.11-Add-User-to-group)*
+## *Only do steps [2.10](#2.10-Create-user) & [2.11](#2.11-Add-user-to-group)*
 Anisble will configure most of the setup (2.3 - 2.11)
 ### Configure Keycloak
 - ## 2.3 Create realm *demo*
@@ -56,8 +56,8 @@ Anisble will configure most of the setup (2.3 - 2.11)
 - ## 2.8 repeat for grafana_editor:
 - ## 2.9 Create Client mappings:
 ![client_mappings](media/client_mapper.jpg)
-- ## 2.10 Create user
-- ## 2.11 Add User to group
+## 2.10 Create user
+## 2.11 Add user to group
 ## Go to [https//localhost:8443](http//localhost:4000)
 # Video
 ![keycloak](media/keycloak.gif)
