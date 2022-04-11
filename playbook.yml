@@ -11,11 +11,6 @@
 #      debug:
 #        var: ansible_facts
 
-    - name: Create a network
-      docker_network:
-        name: keycloak_net
-        state: "{{ compose_state }}"
-
     - name: Create and start services
       docker_compose:
         project_src: '{{ keycloak_compose_file_path }}'
@@ -83,6 +78,13 @@
       tags:
         - grafana
 
+    - name: docker prune
+      ansible.builtin.shell: |
+        echo y | {{ docker }} volume prune
+      when: compose_state != "present"
+      tags:
+        - prune
+      
   handlers:
     - name: Wait for keycloak server
       wait_for:

@@ -2,3 +2,5 @@ compose_state: present
 keycloak_config_state: present
 required: true
 keycloak_compose_file_path:  /Users/jazziro/codesenju/NoOPS/ansible
+docker:  /Applications/Docker.app/Contents/Resources/bin/docker
+grafana_dashboard: /Users/jazziro/codesenju/NoOPS/ansible/grafana/dashboard/container_logs.json

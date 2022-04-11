@@ -1,0 +1,5 @@
+FROM postgres:12-alpine
+COPY ./setup-db.sh /docker-entrypoint-initdb.d/setup-master.sh
+COPY ./certs/* /certs/
+RUN chmod 600 /certs/* &&  \
+    chown postgres /certs/*

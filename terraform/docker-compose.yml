@@ -1,0 +1,33 @@
+version: '3'
+volumes:
+  PGDATA:
+networks:
+  terraform-net:
+services:
+  iac:
+    build:
+      context: .
+    volumes: 
+      - ./:/project
+#      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - terraform-net
+    depends_on:
+      terraform_backend:
+        condition: service_healthy
+  terraform_backend:
+    container_name: terraform_backend
+    build:
+      context: .
+      dockerfile: Dockerfile.postgresql
+    volumes:
+      - PGDATA:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: terraform123
+      POSTGRES_USER: terraform
+      POSTGRES_DB: terraform
+      PGDATA: /var/lib/postgresql/data/pgdata
+    networks:
+      - terraform-net
+    healthcheck:
+      test: pg_isready -U keycloak

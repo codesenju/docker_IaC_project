@@ -28,6 +28,10 @@
 - https://docs.ansible.com/ansible/latest/collections/community/general/keycloak_client_module.html
 
 # Setup
+## Create SSL Certificate suing openssl
+```shell
+openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
+```
 ## Create SSL Certificate using minica:
 ```bash
 cd certs

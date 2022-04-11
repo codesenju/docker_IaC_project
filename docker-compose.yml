@@ -5,7 +5,6 @@ volumes:
   es_data:
 networks:
   keycloak_net:
-    external: true  
 services:
 # Grafana HA
   grafana-proxy:
@@ -16,7 +15,7 @@ services:
     networks:
       - keycloak_net
     volumes:
-      - ./conf/nginx/:/etc/nginx/conf.d/
+      - ./conf/nginx/:/etc/nginx/conf.d
     depends_on:
       - grafana1
       - grafana2
@@ -27,17 +26,10 @@ services:
         fluentd-address: localhost:24224
         tag: monitoring
   grafana1:
-    container_name: grafana1
+    container_name: grafana-1
     image: grafana/grafana:7.4.1
     networks:
       - keycloak_net
-    environment:
-      GF_SECURITY_ADMIN_USER: ${G_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${G_PASSWORD}
-      GF_DATABSE_HOST: ${POSTGRESQL_USER}
-      GF_DATABASE_NAME: ${POSTGRESQL_DB}
-      GF_DATABASE_USER: ${POSTGRESQL_USER}
-      GF_DATABASE_PASSWORD: ${POSTGRESQL_PASS}
     expose:
       - 4000
     volumes:
@@ -54,18 +46,10 @@ services:
         fluentd-address: localhost:24224
         tag: monitoring
   grafana2:
-    container_name: grafana2
+    container_name: grafana-2
     image: grafana/grafana:7.4.1
     networks:
       - keycloak_net
-    environment:
-      GF_SECURITY_ADMIN_USER: ${G_USER}
-      GF_SECURITY_ADMIN_PASSWORD: ${G_PASSWORD}
-      GF_DATABSE_HOST: ${POSTGRESQL_USER}
-      GF_DATABASE_NAME: ${POSTGRESQL_DB}
-      GF_DATABASE_USER: ${POSTGRESQL_USER}
-      GF_DATABASE_PASSWORD: ${POSTGRESQL_PASS}
-
     expose:
       - 4000
     volumes:
@@ -177,7 +161,6 @@ services:
     environment:
       POSTGRES_PASSWORD: ${POSTGRESQL_PASS}
       POSTGRES_USER: ${POSTGRESQL_USER}
-#      POSTGRES_DB: ${POSTGRESQL_DB}
       PGDATA: /var/lib/postgresql/data/pgdata
     networks:
       - keycloak_net

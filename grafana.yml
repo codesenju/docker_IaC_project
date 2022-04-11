@@ -74,6 +74,6 @@
     state: present
     commit_message: Updated by ansible
     overwrite: yes
-    path: grafana/dashboard/container_logs.json
+    path: "{{ grafana_dashboard }}"
   tags:
     - grafana
