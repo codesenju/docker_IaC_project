@@ -31,7 +31,7 @@ minica --domains 'localhost'
 ```
 # 2. Start Environment:
 ```bash
-ansible-playbook playook.yml
+ansible-playbook playbook.yml --vault-password-file vault_password
 ```
 ## 2.1 Go to [https//localhost:8443](https//localhost:8443)
 ## *Only do steps [2.10](#2.10-Create-user) & [2.11](#2.11-Add-user-to-group)*
