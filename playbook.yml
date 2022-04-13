@@ -78,6 +78,12 @@
       tags:
         - grafana
 
+    - name: Configure keycloak jaeger client
+      import_tasks: jaeger.yml
+      when: compose_state == "present"
+      tags:
+        - jaeger-client
+
     - name: docker prune
       ansible.builtin.shell: |
         echo y | {{ docker }} volume prune

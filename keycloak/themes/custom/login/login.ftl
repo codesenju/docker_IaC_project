@@ -24,7 +24,7 @@
         </div>
         <div class="box-container">
             <div>
-                <p class="application-name">iFinance Single-Sign On</p>
+                <p class="application-name">Identity and Access Management</p>
                 <p class="sign-in-info">Sign in to your account.</p>
             </div>
         <#if realm.password>
