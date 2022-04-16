@@ -1,0 +1,59 @@
+- name: Create Keycloak  client | nginx
+  keycloak_client:
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
+    realm: demo
+    client_id: nginx_proxy
+    state: "{{ keycloak_config_state }}"
+    description: Updated by Ansible
+    root_url: https://localhost
+    admin_url: https://localhost
+    base_url: "/"
+    enabled: True
+    client_authenticator_type: client-secret
+    secret: this_is_a_super_secret_for_nginx_proxy_client
+    redirect_uris:
+      - https://localhost/*
+    validate_certs: no
+
+- name: Create a Keycloak nginx client role | admin
+  community.general.keycloak_role:
+    name: admin
+    realm: demo
+    client_id: nginx_proxy
+    state: "{{ keycloak_config_state }}"
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
+    validate_certs: no
+
+- name: Create a Keycloak group | nginx_proxy_admins
+  keycloak_group:
+    name: nginx_proxy_admins
+    realm: demo
+    state: "{{ keycloak_config_state }}"
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
+    validate_certs: no
+
+- name: Map a client role to a group
+  community.general.keycloak_client_rolemapping:
+    realm: demo
+    auth_client_id: admin-cli
+    auth_keycloak_url: https://localhost:8443
+    auth_realm: master
+    auth_username: "{{ k_user }}"
+    auth_password: "{{ k_password }}"
+    validate_certs: no
+    state: "{{ keycloak_config_state }}"
+    client_id: nginx_proxy
+    group_name: nginx_proxy_admins
+    roles:
+      - name: admin

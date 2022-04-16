@@ -83,6 +83,12 @@
       when: compose_state == "present"
       tags:
         - jaeger-client
+  
+    - name: Configure keycloak nginx proxy client
+      import_tasks: nginx.yml
+      when: compose_state == "present"
+      tags:
+        - nginx-proxy-client
 
     - name: docker prune
       ansible.builtin.shell: |
