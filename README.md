@@ -20,7 +20,7 @@
 ```ansible-doc -l ```
 - Display documentation for the ping module \
 ```ansible-doc ping```
-## Create SSL Certificate suing openssl
+## Create SSL Certificate using openssl
 ```shell
 openssl req -x509 -newkey rsa:4096 -keyout key.pem -out cert.pem -sha256 -days 365
 ```
